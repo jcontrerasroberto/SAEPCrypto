@@ -77,6 +77,7 @@ public class SAEP {
 
     //This method is only used by teacher and not by chief
     public void uploadNotes() {
+        this.sendMessage("upload");
         Scanner in = new Scanner(System.in);
         String filepath;
         System.out.println("SUBIR NOTAS");
@@ -89,13 +90,19 @@ public class SAEP {
             e.printStackTrace();
         }
         Data data = new Data();
+        data.setFileName(Paths.get(filepath).getFileName().toString());
         data.setData(fileBytes);
         data.setId(user.getId());
+        data.setId_origen(user.getId());
         //SIGN FILE WITH THE DATA OF THE USER TOO.
         data.setSignatureTeacher(new DigitalSignature().sign(data));
         //CREATE DATA INSTANCE WITH THE FILE BYTES AND THE SIGNATURE
+        //SEND DATA VIA SOCKET DONE
+        this.sendObject(data);
 
-        //SEND DATA VIA SOCKET
+        //PRINT RESULT STATEMENT IN THIS CASE THE SIGNATURE
+
+
     }
 
     public void sendMessage(String mes){

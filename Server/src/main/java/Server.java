@@ -1,9 +1,10 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Server {
 
@@ -29,6 +30,14 @@ public class Server {
                 ois = new ObjectInputStream(socket.getInputStream());
                 log("Client connected");
                 login();
+                while(true){
+                    String action = this.receiveMessage();
+                    if(action.equals("upload")){
+                        Data d = (Data) this.receiveObject();
+                        FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
+                        //save the data of the file in the db
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
