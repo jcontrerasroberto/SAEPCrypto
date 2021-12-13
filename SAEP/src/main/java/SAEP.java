@@ -3,6 +3,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class SAEP {
@@ -34,12 +37,21 @@ public class SAEP {
         System.out.println("WELCOME TO SAEP");
         System.out.print("ID:");
         String id = in.nextLine();
+        System.out.print("Password:");
+        String password = in.nextLine();
         this.user.setId(id);
-        this.user.setName("Procrastinadores");
-        this.user.setRole("PROFESOR");
+        this.user.setName(null);
+        this.user.setRole(null);
+        this.user.setPassword(hashPassword(password));
         try {
-            oos.writeUTF(id);
+            this.sendObject(this.user);
             oos.flush();
+            User result = (User) this.receiveObject();
+            if(result==null) login();
+            else {
+                user = result;
+                menu();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,6 +134,17 @@ public class SAEP {
             e.printStackTrace();
             return null;
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String hashPassword(String password){
+        try {
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(password.getBytes());
+            String digest = Base64.getEncoder().encodeToString(hash);
+            return digest;
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
         }
