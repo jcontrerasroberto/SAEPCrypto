@@ -19,6 +19,7 @@
 .idea/**/contentModel.xml
 
 ./target
+./target/*
 
 # Sensitive or high-churn files
 .idea/**/dataSources/

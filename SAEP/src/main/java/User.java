@@ -3,6 +3,7 @@ public class User {
     private String id;
     private String name;
     private String role;
+    private String password;
 
     public User() {
     }
@@ -29,6 +30,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 
