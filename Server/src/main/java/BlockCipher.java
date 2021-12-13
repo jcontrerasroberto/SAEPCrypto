@@ -19,7 +19,7 @@ public class BlockCipher {
         Path path = Paths.get("");
         String directoryName = path.toAbsolutePath().toString();
 
-        System.out.print("Choose a file name to save the key/iv (Without extension): ");
+        System.out.print("(Without extension): ");
         Scanner reader = new Scanner(System.in);
         String name = reader.next();
 
@@ -36,7 +36,7 @@ public class BlockCipher {
         Path path = Paths.get("");
         String directoryName = path.toAbsolutePath().toString();
 
-        System.out.print("Choose the file name to read the key/iv (Without extension): ");
+        System.out.print("(Without extension): ");
         Scanner reader = new Scanner(System.in);
         String name = reader.next();
         directoryName+="\\"+dirActual+"\\"+name+"."+ext;
@@ -53,6 +53,7 @@ public class BlockCipher {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(128);
             SecretKey key = keyGen.generateKey();
+            System.out.print("Choose a file name to save the key");
             saveFile(Base64.getEncoder().encode(key.getEncoded()),"key");
         } catch (NoSuchAlgorithmException | IOException e) {
             System.out.println("ERROR");
@@ -63,12 +64,14 @@ public class BlockCipher {
         System.out.println("Creating IV");
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
+        System.out.print("Choose a file name to save the iv");
         saveFile(Base64.getEncoder().encode(iv),"txt");
         return new IvParameterSpec(iv);
     }
 
     static byte[] encrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] cypherData;
+        System.out.print("Choose a file name to read the key");
         SecretKey key = new SecretKeySpec(readFile("key"), "AES" );
         IvParameterSpec iv = createIv();
 
@@ -83,7 +86,9 @@ public class BlockCipher {
 
     public static void decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] originalData;
+        System.out.print("Choose a file name to read the key");
         SecretKey key = new SecretKeySpec(readFile("key"), "AES" );
+        System.out.print("Choose a file name to read the iv");
         IvParameterSpec iv= new IvParameterSpec(readFile("txt"));
 
         javax.crypto.Cipher cipher= javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
