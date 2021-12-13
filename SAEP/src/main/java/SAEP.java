@@ -86,6 +86,47 @@ public class SAEP {
         //SEND DATA VIA SOCKET
     }
 
+    public void sendMessage(String mes){
+        try {
+            oos.writeUTF(mes);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String receiveMessage(){
+        try {
+            String res = ois.readUTF();
+            return res;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void sendObject(Object toSend){
+        try {
+            oos.writeObject(toSend);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Object receiveObject(){
+        try {
+            Object rec = ois.readObject();
+            return rec;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void main(String[] args) {
 
         SAEP saep = new SAEP();
