@@ -1,7 +1,6 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -9,8 +8,22 @@ import java.util.Scanner;
 public class SAEP {
 
     private User user;
+    private final int port = 9393;
+    private final String dir = "localhost";
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
 
     public SAEP(){
+
+        try {
+            Socket socketcon = new Socket(dir, port);
+            oos = new ObjectOutputStream(socketcon.getOutputStream());
+            oos.flush();
+            ois = new ObjectInputStream(socketcon.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         this.user = new User();
         this.login();
     }
@@ -24,6 +37,13 @@ public class SAEP {
         this.user.setId(id);
         this.user.setName("Procrastinadores");
         this.user.setRole("PROFESOR");
+        try {
+            oos.writeUTF(id);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         menu();
         in.close();
     }
