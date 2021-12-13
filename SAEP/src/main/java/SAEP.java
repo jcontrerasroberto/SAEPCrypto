@@ -62,7 +62,7 @@ public class SAEP {
 
     public void menu(){
         Scanner in = new Scanner(System.in);
-        if(this.user.getRole().equals("PROFESOR")){
+        if(this.user.getRole().equals("PROFESSOR")){
             System.out.println("1. Subir calificaciones");
             System.out.print("Opcion: ");
             Integer opt = in.nextInt();
