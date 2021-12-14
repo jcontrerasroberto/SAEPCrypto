@@ -34,6 +34,7 @@ public class Server {
                     String action = this.receiveMessage();
                     if(action.equals("upload")){
                         Data d = (Data) this.receiveObject();
+                        dbHandler.insertInDB(d);
                         FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
                         //save the data of the file in the db
                     }
@@ -49,8 +50,10 @@ public class Server {
         User toValidate = (User) this.receiveObject();
         User result = dbHandler.getUser(toValidate.getId());
         if (result!=null && toValidate.getId().equals(result.getId()) && toValidate.getPassword().equals(result.getPassword())){
+            System.out.println("Client identified");
             this.sendObject(result);
         }else{
+            System.out.println("Client NOT identified");
             this.sendObject(null);
         }
     }

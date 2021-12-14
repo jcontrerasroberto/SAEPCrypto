@@ -41,6 +41,10 @@ public class DataBaseHandler {
         }
     }
 
+    public void insertInDB(Data data){
+
+    }
+
     private void log(String men) {
         System.out.println(men);
     }
