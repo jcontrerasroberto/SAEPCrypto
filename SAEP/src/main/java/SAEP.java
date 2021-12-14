@@ -33,7 +33,6 @@ public class SAEP {
 
     public void login(){
         Scanner in = new Scanner(System.in);
-        //COMO VAMOS A MANEJAR EL LOGIN?
         System.out.println("WELCOME TO SAEP");
         System.out.print("ID:");
         String id = in.nextLine();
@@ -63,8 +62,8 @@ public class SAEP {
     public void menu(){
         Scanner in = new Scanner(System.in);
         if(this.user.getRole().equals("PROFESSOR")){
-            System.out.println("1. Subir calificaciones");
-            System.out.print("Opcion: ");
+            System.out.println("1. Upload grades");
+            System.out.print("Option: ");
             Integer opt = in.nextInt();
             switch (opt){
                 case 1:
@@ -80,7 +79,7 @@ public class SAEP {
         this.sendMessage("upload");
         Scanner in = new Scanner(System.in);
         String filepath;
-        System.out.println("SUBIR NOTAS");
+        System.out.println("UPLOAD AND SIGN GRADES LIST");
         System.out.print("File path: ");
         filepath = in.nextLine();
         byte[] fileBytes = new byte[0];
