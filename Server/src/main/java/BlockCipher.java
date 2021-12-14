@@ -14,34 +14,31 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class BlockCipher {
 
-    static void saveFile(byte[] content,String ext) throws IOException {
-        String dirActual = "CipherThings";
-        Path path = Paths.get("");
-        String directoryName = path.toAbsolutePath().toString();
+    static String dirActual = "files";
+    static Path path = Paths.get("");
+    static String directoryName = path.toAbsolutePath()+"\\"+dirActual;
 
+    static void saveFile(byte[] content,String ext) throws IOException {
         System.out.print("(Without extension): ");
         Scanner reader = new Scanner(System.in);
         String name = reader.next();
 
-        directoryName+="\\"+dirActual+"\\"+name+"."+ext;
+        String dir = directoryName+"\\"+name+"."+ext;
 
-        File f = new File(directoryName);
+        File f = new File(dir);
         FileOutputStream stream = new FileOutputStream(f.getAbsolutePath());
         stream.write(content);
         System.out.println("Data saved successfully in file "+ f.getName());
     }
 
     static byte[] readFile(String ext) throws IOException {
-        String dirActual = "CipherThings";
-        Path path = Paths.get("");
-        String directoryName = path.toAbsolutePath().toString();
-
         System.out.print("(Without extension): ");
         Scanner reader = new Scanner(System.in);
         String name = reader.next();
-        directoryName+="\\"+dirActual+"\\"+name+"."+ext;
 
-        byte[] source = Files.readAllBytes(Path.of(directoryName));
+        String dir = directoryName+"\\"+name+"."+ext;
+
+        byte[] source = Files.readAllBytes(Path.of(dir));
         String message = new String(source);
 
         byte[] decodedBytes = Base64.getDecoder().decode(message);
@@ -125,13 +122,8 @@ public class BlockCipher {
     static void ByteToFile (byte[] bytes, String name) {
 
         try {
-            String dirActual = "CipherThings";
-            Path path = Paths.get("");
-            String directoryName = path.toAbsolutePath().toString();
-            directoryName+="\\"+dirActual+"\\"+name;
-
-            writeBytesToFile(directoryName, bytes);
-
+            String dir = directoryName+"\\"+name;
+            writeBytesToFile(dir, bytes);
             System.out.println("Done");
 
         } catch (IOException e) {
