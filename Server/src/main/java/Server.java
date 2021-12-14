@@ -3,8 +3,10 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class Server {
 
@@ -12,10 +14,12 @@ public class Server {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private DataBaseHandler dbHandler;
+    private DigitalSignature digitalSignature;
 
     public Server(){
         log("Connecting to the DB");
         dbHandler = new DataBaseHandler();
+        digitalSignature = new DigitalSignature();
         log("Starting server...");
         ServerSocket ss = null;
 
@@ -32,16 +36,44 @@ public class Server {
                 login();
                 while(true){
                     String action = this.receiveMessage();
-                    if(action.equals("upload")){
-                        Data d = (Data) this.receiveObject();
-                        dbHandler.insertInDB(d);
-                        FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
-                        //save the data of the file in the db
-                    }
+                    if(action.equals("upload")) receiveNote(false);
+                    if (action.equals("listUnauthorizedNotes")) listUnauthorizedNotes();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    private void listUnauthorizedNotes() throws IOException {
+        ArrayList<Data> notes = new ArrayList<>();
+        notes = dbHandler.getUnauthorizedNotes();
+        this.sendObject(notes);
+        String file = this.receiveMessage();
+        Data toSend = dbHandler.getNote(file);
+
+        byte[] fileBytes = new byte[0];
+        try {
+            fileBytes = Files.readAllBytes(Paths.get("files", toSend.getFileName()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        toSend.setData(fileBytes);
+        this.sendObject(toSend);
+
+        //Data authorizedData = (Data) this.receiveObject();
+        receiveNote(true);
+    }
+
+    public void receiveNote(boolean verifyChiefSignature) throws IOException {
+        Data d = (Data) this.receiveObject();
+        if (digitalSignature.verifySignature(d, verifyChiefSignature)){
+            dbHandler.insertInDB(d);
+            FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
+        }else{
+            log("Archivo corrupto");
         }
 
     }

@@ -1,5 +1,6 @@
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -10,14 +11,20 @@ public class DigitalSignature {
     //ATRIBUTOS
     //no hay, no existen :c
 
+    public DigitalSignature(){
+        super();
+    }
+
     //METODOS COMO FIRMAR, VERIFICAR FIRMA
     public byte[] sign(Data data){
         byte[] fileBytes = (byte[]) data.getData();
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             outputStream.write( data.getId().getBytes() );
-            if(data.getSignatureTeacher() != null)//when the Signatory user is the chief
+            if(data.getSignatureTeacher() != null) {//when the Signatory user is the chief
                 outputStream.write(data.getSignatureTeacher());
+                outputStream.write(data.getIdChief().getBytes(StandardCharsets.UTF_8));
+            }
             outputStream.write( fileBytes );
 
             byte[] bytesToSign = outputStream.toByteArray( ); // ID + signatureTeacher (if applicable) + fileBytes
@@ -43,8 +50,10 @@ public class DigitalSignature {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             outputStream.write( data.getId().getBytes() );
-            if(verifyChiefSignature)
+            if(verifyChiefSignature) {
                 outputStream.write(data.getSignatureTeacher());
+                outputStream.write(data.getIdChief().getBytes(StandardCharsets.UTF_8));
+            }
             outputStream.write( fileBytes );
 
             byte[] signedBytes = outputStream.toByteArray( ); // ID + signatureTeacher (if applicable) + fileBytes
