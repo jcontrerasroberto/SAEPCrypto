@@ -92,14 +92,14 @@ public class SAEP {
         data.setFileName(Paths.get(filepath).getFileName().toString());
         data.setData(fileBytes);
         data.setId(user.getId());
-        data.setId_origen(user.getId());
+        //data.setId_origen(user.getId());
         //SIGN FILE WITH THE DATA OF THE USER TOO.
         data.setSignatureTeacher(new DigitalSignature().sign(data));
         //CREATE DATA INSTANCE WITH THE FILE BYTES AND THE SIGNATURE
         //SEND DATA VIA SOCKET DONE
         this.sendObject(data);
 
-        //PRINT RESULT STATEMENT IN THIS CASE THE SIGNATURE
+        System.out.println("File signed successfully by "+data.getId()+", digital signature: "+ new String(Base64.getEncoder().encode(data.getSignatureTeacher())));
 
 
     }

@@ -56,7 +56,7 @@ public class DataBaseHandler {
             else
                 stm.setString(3, new String(Base64.getEncoder().encode(data.getSignatureChief())));
             stm.setString(4, data.getId());
-            stm.setString(5, data.getId_chief());
+            stm.setString(5, data.getIdChief());
             stm.executeUpdate();
         } catch (SQLException throwable) {
             throwable.printStackTrace();

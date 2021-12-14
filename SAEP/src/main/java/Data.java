@@ -7,7 +7,7 @@ public class Data implements Serializable {
     String fileName;
     Object data;
     String id;
-    String id_origen;
+    String idChief;
 
     public Data() {
     }
@@ -42,11 +42,11 @@ public class Data implements Serializable {
         this.fileName = fileName;
     }
 
-    public String getId_origen() {
-        return id_origen;
+    public String getIdChief() {
+        return idChief;
     }
 
-    public void setId_origen(String id_origen) {
-        this.id_origen = id_origen;
+    public void setIdChief(String idChief) {
+        this.idChief = idChief;
     }
 }
