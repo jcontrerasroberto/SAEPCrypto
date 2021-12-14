@@ -70,8 +70,8 @@ public class Server {
     public void receiveNote() throws IOException {
         Data d = (Data) this.receiveObject();
         if (digitalSignature.verifySignature(d, false)){
+            dbHandler.insertInDB(d);
             FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
-            //save the data of the file in the db
         }else{
             log("Archivo corrupto");
         }

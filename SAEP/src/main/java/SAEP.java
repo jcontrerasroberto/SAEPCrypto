@@ -119,9 +119,9 @@ public class SAEP {
                 }else{
                     this.sendObject(null);
                 }
-                //save the data of the file in the db
             }else{
                 System.out.println("Archivo corrupto");
+                this.sendObject(null);
             }
         }else{
             this.sendMessage("EMPTY");
