@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.Base64;
 
 public class DataBaseHandler {
 
@@ -42,6 +43,25 @@ public class DataBaseHandler {
     }
 
     public void insertInDB(Data data){
+        System.out.println("Saving to DB");
+        try {
+            /*Statement stm = SAEPConn.createStatement();
+            stm.executeUpdate("INSERT INTO notes (note_filename, note_professor_sign, note_chief_sign, note_professor_id) values ('nose', 'prof2sign', 'chieff2sign', 2019630451);");
+*/
+            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO notes (note_filename, note_professor_sign, note_chief_sign, note_professor_id, note_chief_id) values (?, ?, ?, ?, ?);");
+            stm.setString(1, data.getFileName());
+            stm.setString(2, new String(Base64.getEncoder().encode(data.getSignatureTeacher())));
+            if(data.getSignatureChief()==null)
+                stm.setNull(3, Types.NULL);
+            else
+                stm.setString(3, new String(Base64.getEncoder().encode(data.getSignatureChief())));
+            stm.setString(4, data.getId());
+            stm.setString(5, data.getId_chief());
+            stm.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+
 
     }
 
