@@ -88,9 +88,6 @@ public class DataBaseHandler {
     public void insertInDB(Data data){
         System.out.println("Saving to DB");
         try {
-            /*Statement stm = SAEPConn.createStatement();
-            stm.executeUpdate("INSERT INTO notes (note_filename, note_professor_sign, note_chief_sign, note_professor_id) values ('nose', 'prof2sign', 'chieff2sign', 2019630451);");
-*/
             PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO notes (note_filename, note_professor_sign, note_chief_sign, note_professor_id, note_chief_id) values (?, ?, ?, ?, ?);");
             stm.setString(1, data.getFileName());
             stm.setString(2, new String(Base64.getEncoder().encode(data.getSignatureTeacher())));

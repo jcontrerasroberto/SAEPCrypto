@@ -36,7 +36,7 @@ public class Server {
                 login();
                 while(true){
                     String action = this.receiveMessage();
-                    if(action.equals("upload")) receiveNote();
+                    if(action.equals("upload")) receiveNote(false);
                     if (action.equals("listUnauthorizedNotes")) listUnauthorizedNotes();
                 }
             }
@@ -46,7 +46,7 @@ public class Server {
 
     }
 
-    private void listUnauthorizedNotes() {
+    private void listUnauthorizedNotes() throws IOException {
         ArrayList<Data> notes = new ArrayList<>();
         notes = dbHandler.getUnauthorizedNotes();
         this.sendObject(notes);
@@ -61,15 +61,15 @@ public class Server {
         }
 
         toSend.setData(fileBytes);
-
         this.sendObject(toSend);
 
-        Data authorizedData = (Data) this.receiveObject();
+        //Data authorizedData = (Data) this.receiveObject();
+        receiveNote(true);
     }
 
-    public void receiveNote() throws IOException {
+    public void receiveNote(boolean verifyChiefSignature) throws IOException {
         Data d = (Data) this.receiveObject();
-        if (digitalSignature.verifySignature(d, false)){
+        if (digitalSignature.verifySignature(d, verifyChiefSignature)){
             dbHandler.insertInDB(d);
             FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
         }else{

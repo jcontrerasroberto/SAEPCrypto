@@ -102,6 +102,7 @@ public class SAEP {
             Data r = (Data) this.receiveObject();
             if (digitalSignature.verifySignature(r, false)){
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", r.getFileName()).toString()), (byte[]) r.getData());
+                //Open the downloaded file
                 if(Desktop.isDesktopSupported()){
                     try{
                         File f = new File(Paths.get("files", r.getFileName()).toString());
@@ -113,6 +114,7 @@ public class SAEP {
                 System.out.print("Do you want to authorize the notes? Y/n: ");
                 String auth = in.nextLine();
                 if(auth.equals("Y")){
+                    System.out.println("Signing file");
                     r.setIdChief(user.getId());
                     r.setSignatureChief(digitalSignature.sign(r));
                     this.sendObject(r);
@@ -120,7 +122,7 @@ public class SAEP {
                     this.sendObject(null);
                 }
             }else{
-                System.out.println("Archivo corrupto");
+                System.out.println("Corrupted file!");
                 this.sendObject(null);
             }
         }else{
@@ -134,7 +136,7 @@ public class SAEP {
         Scanner in = new Scanner(System.in);
         String filepath;
         System.out.println("UPLOAD AND SIGN GRADES LIST");
-        System.out.print("File path: ");
+        System.out.print("File path (name should be GROUP_SUBJECT, I.e. 3CM9_MATH): ");
         filepath = in.nextLine();
         byte[] fileBytes = new byte[0];
         try {
@@ -145,15 +147,13 @@ public class SAEP {
         Data data = new Data();
         data.setFileName(Paths.get(filepath).getFileName().toString());
         data.setData(fileBytes);
-        data.setId(user.getId());
         //SIGN FILE WITH THE DATA OF THE USER TOO.
+        data.setId(user.getId());
         data.setSignatureTeacher(new DigitalSignature().sign(data));
-        //CREATE DATA INSTANCE WITH THE FILE BYTES AND THE SIGNATURE
-        //SEND DATA VIA SOCKET DONE
+        //SEND DATA VIA SOCKET
         this.sendObject(data);
 
         System.out.println("File signed successfully by "+data.getId()+", digital signature: "+ new String(Base64.getEncoder().encode(data.getSignatureTeacher())));
-        //PRINT RESULT STATEMENT IN THIS CASE THE SIGNATURE
 
     }
 
