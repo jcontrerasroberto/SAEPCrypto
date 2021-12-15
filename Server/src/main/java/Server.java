@@ -70,8 +70,14 @@ public class Server {
     public void receiveNote(boolean verifyChiefSignature) throws IOException {
         Data d = (Data) this.receiveObject();
         if (digitalSignature.verifySignature(d, verifyChiefSignature)){
-            dbHandler.insertInDB(d);
-            FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
+            if(verifyChiefSignature){
+                //UPDATE FIRMA CHIEF
+                
+            }else{
+                dbHandler.insertInDB(d);
+                FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
+            }
+
         }else{
             log("Archivo corrupto");
         }
