@@ -54,6 +54,7 @@ public class DataBaseHandler {
             while (rs.next()){
                 Data temp = new Data();
                 temp.setFileName(rs.getString("note_filename"));
+                System.out.println("Firma teacher:"+rs.getString("note_professor_sign"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
                 if(authorized)
                     temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
@@ -70,7 +71,7 @@ public class DataBaseHandler {
         }
     }
 
-    public Data getNote(String filename){
+    public Data getNote(String filename, boolean authorized){
         try {
             SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM notes WHERE note_filename = ?");
             SAEPPrepareStat.setString(1, filename);
@@ -79,7 +80,10 @@ public class DataBaseHandler {
                 Data temp = new Data();
                 temp.setFileName(rs.getString("note_filename"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
-                temp.setSignatureChief(null);
+                if(authorized)
+                    temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
+                else
+                    temp.setSignatureChief(null);
                 temp.setId(rs.getString("note_professor_id"));
                 temp.setIdChief(rs.getString("note_chief_id"));
                 return temp;

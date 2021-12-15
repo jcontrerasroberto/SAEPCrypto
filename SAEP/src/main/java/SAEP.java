@@ -107,9 +107,35 @@ public class SAEP {
         Scanner in = new Scanner(System.in);
         this.sendMessage("listAuthorizedNotes");
         ArrayList<Data> res = (ArrayList<Data>) this.receiveObject();
-        System.out.println("Authorized lists:");
+        System.out.println("Authorized lists:\n");
         for (Data d : res) {
             System.out.println(d.getFileName() + " - " + d.getId());
+        }
+        if(!res.isEmpty()){
+            System.out.print("\nSelect the list to download: ");
+            this.sendMessage(in.nextLine());
+            System.out.print("Do you want to download a backup? Y/n: ");
+            String backup = in.nextLine();
+            this.sendMessage(backup);
+
+            Data r = (Data) this.receiveObject();
+            if (digitalSignature.verifySignature(r, true)){
+                FileUtils.writeByteArrayToFile(new File(Paths.get("files", r.getFileName()).toString()), (byte[]) r.getData());
+                //Open the downloaded file
+                if(Desktop.isDesktopSupported()){
+                    try{
+                        File f = new File(Paths.get("files", r.getFileName()).toString());
+                        Desktop.getDesktop().open(f);
+                    }catch (IOException E){
+                        E.printStackTrace();
+                    }
+                }
+            }else{
+                System.out.println("Corrupted file!");
+                this.sendObject(null);
+            }
+        }else{
+            this.sendMessage("EMPTY");
         }
     }
 

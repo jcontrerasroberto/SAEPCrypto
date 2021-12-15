@@ -59,6 +59,23 @@ public class Server {
         ArrayList<Data> notes = new ArrayList<>();
         notes = dbHandler.getNotes(true);
         this.sendObject(notes);
+        String file = this.receiveMessage();
+        String type = this.receiveMessage();
+        if(type.equals("Y")){
+            //decipher and send
+        }
+        else {
+            Data toSend = dbHandler.getNote(file, true);
+            byte[] fileBytes = new byte[0];
+            try {
+                fileBytes = Files.readAllBytes(Paths.get("files", toSend.getFileName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            toSend.setData(fileBytes);
+            this.sendObject(toSend);
+        }
     }
 
     private void listUnauthorizedNotes() throws IOException {
@@ -66,7 +83,7 @@ public class Server {
         notes = dbHandler.getNotes(false);
         this.sendObject(notes);
         String file = this.receiveMessage();
-        Data toSend = dbHandler.getNote(file);
+        Data toSend = dbHandler.getNote(file, false);
 
         byte[] fileBytes = new byte[0];
         try {
