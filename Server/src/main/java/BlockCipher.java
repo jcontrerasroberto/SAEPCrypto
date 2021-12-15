@@ -6,6 +6,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Base64;
 import java.util.Scanner;
 import javax.crypto.*;
@@ -89,11 +91,12 @@ public class BlockCipher {
         return result;
     }
 
-    public static void decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public static void decrypt(byte[] data, String filename) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] originalData;
-        System.out.print("Choose a file name to read the key");
-        SecretKey key = new SecretKeySpec(readFile("key"), "AES" );
-        System.out.print("Choose a file name to read the iv");
+        //System.out.print("Choose a file name to read the key");
+        SecretKey key = new SecretKeySpec(readFile("sec/AESkey.key"), "AES" );
+        //System.out.print("Choose a file name to read the iv");
+
         IvParameterSpec iv= new IvParameterSpec(readFile("txt"));
 
         javax.crypto.Cipher cipher= javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");

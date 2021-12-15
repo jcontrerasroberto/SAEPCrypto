@@ -94,6 +94,26 @@ public class DataBaseHandler {
             return null;
         }
     }
+    public Data getCipheredNote(String filename){
+        try {
+            SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM backup_notes WHERE backup_filename = ?");
+            SAEPPrepareStat.setString(1, filename);
+            ResultSet rs = SAEPPrepareStat.executeQuery();
+            while (rs.next()){
+                Data temp = new Data();
+                temp.setFileName(rs.getString("note_filename"));
+                temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
+                temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
+                temp.setId(rs.getString("note_professor_id"));
+                temp.setIdChief(rs.getString("note_chief_id"));
+                return temp;
+            }
+            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public void insertInDB(Data data){
         System.out.println("Saving to DB");
@@ -124,11 +144,12 @@ public class DataBaseHandler {
     public void insertEncInfo(EncData encData){
         System.out.println("Saving to DB");
         try {
-            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO backup_notes (backup_filename, backup_original_filename, backup_iv, backup_chief_id) VALUES(?, ?, ?, ?);");
+            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO backup_notes (backup_filename, backup_original_filename, backup_iv, backup_chief_id, note_professor_sign, note_chief_sign) VALUES(?, ?, ?, ?, ?, ?);");
             stm.setString(1, encData.getEncFilename());
             stm.setString(2, encData.getOriginalFilename());
             stm.setString(3, encData.getIv());
             stm.setString(4, encData.getChiefId());
+            stm.setString(5, );
             stm.executeUpdate();
 
         } catch (SQLException throwable) {

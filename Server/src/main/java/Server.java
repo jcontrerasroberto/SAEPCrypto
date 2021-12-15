@@ -61,21 +61,23 @@ public class Server {
         this.sendObject(notes);
         String file = this.receiveMessage();
         String type = this.receiveMessage();
-        if(type.equals("Y")){
-            //decipher and send
+        Data toSend;
+        if(type.equals("Y")) {
+            Data ciphered = dbHandler.getCipheredNote(file);
+            toSend =
         }
-        else {
-            Data toSend = dbHandler.getNote(file, true);
-            byte[] fileBytes = new byte[0];
-            try {
-                fileBytes = Files.readAllBytes(Paths.get("files", toSend.getFileName()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        else
+            toSend = dbHandler.getNote(file, true);
 
-            toSend.setData(fileBytes);
-            this.sendObject(toSend);
+        byte[] fileBytes = new byte[0];
+        try {
+            fileBytes = Files.readAllBytes(Paths.get("files", toSend.getFileName()));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        toSend.setData(fileBytes);
+        this.sendObject(toSend);
     }
 
     private void listUnauthorizedNotes() throws IOException {
