@@ -6,6 +6,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Base64;
 import java.util.Scanner;
 import javax.crypto.*;
@@ -38,7 +40,7 @@ public class BlockCipher {
     static byte[] readFile(String path) throws IOException {
 
         String dir = Paths.get(path).toString();
-        System.out.println(dir);
+        //System.out.println(dir);
                 //directoryName+"\\"+name+"."+ext;
 
         byte[] source = Files.readAllBytes(Path.of(dir));
@@ -89,17 +91,18 @@ public class BlockCipher {
         return result;
     }
 
-    public static void decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public static byte[] decrypt(byte[] data, String iv) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] originalData;
-        System.out.print("Choose a file name to read the key");
-        SecretKey key = new SecretKeySpec(readFile("key"), "AES" );
-        System.out.print("Choose a file name to read the iv");
-        IvParameterSpec iv= new IvParameterSpec(readFile("txt"));
+        SecretKey key = new SecretKeySpec(readFile("sec/AESkey.key"), "AES" );
+        //System.out.print("Choose a file name to read the iv");
+
+        IvParameterSpec ivDec= new IvParameterSpec(Base64.getDecoder().decode(iv));
 
         javax.crypto.Cipher cipher= javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(javax.crypto.Cipher.DECRYPT_MODE,key,iv);
+        cipher.init(javax.crypto.Cipher.DECRYPT_MODE,key,ivDec);
         originalData= cipher.doFinal(data);
-        ByteToFile(originalData,"OriginalData.pdf");
+        //ByteToFile(originalData,"OriginalData.pdf");
+        return originalData;
     }
 
     public static byte[] loadFile(String sourcePath) throws IOException

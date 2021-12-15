@@ -78,13 +78,66 @@ public class SAEP {
 
         }else if(this.user.getRole().equals("CHIEF")){
             System.out.println("1. List unauthorized notes");
+            System.out.println("2. List authorized notes");
             System.out.print("Option: ");
             Integer opt = in.nextInt();
             switch (opt){
                 case 1:
                     this.listUnauthorizedNotes();
                     break;
+                case 2:
+                    this.listAuthorizedNotes();
+                    break;
             }
+        }
+        else if(this.user.getRole().equals("PRINCIPAL")){
+            System.out.println("1. List authorized notes");
+            System.out.print("Option: ");
+            Integer opt = in.nextInt();
+            switch (opt){
+                case 1:
+                    this.listAuthorizedNotes();
+                    break;
+
+            }
+        }
+    }
+
+    public void listAuthorizedNotes() throws IOException {
+        Scanner in = new Scanner(System.in);
+        this.sendMessage("listAuthorizedNotes");
+        ArrayList<Data> res = (ArrayList<Data>) this.receiveObject();
+        System.out.println("Authorized lists:\n");
+        for (Data d : res) {
+            System.out.println(d.getFileName() + " - " + d.getId());
+        }
+        if(!res.isEmpty()){
+            System.out.print("\nSelect the list to download: ");
+            this.sendMessage(in.nextLine());
+            System.out.print("Do you want to download a backup? Y/n: ");
+            String backup = in.nextLine();
+            this.sendMessage(backup);
+
+            Data r = (Data) this.receiveObject();
+            if(backup.equals("Y"))
+                r.setFileName(r.getFileName()+".pdf");
+            if (digitalSignature.verifySignature(r, true)){
+                FileUtils.writeByteArrayToFile(new File(Paths.get("files", r.getFileName()).toString()), (byte[]) r.getData());
+                //Open the downloaded file
+                if(Desktop.isDesktopSupported()){
+                    try{
+                        File f = new File(Paths.get("files", r.getFileName()).toString());
+                        Desktop.getDesktop().open(f);
+                    }catch (IOException E){
+                        E.printStackTrace();
+                    }
+                }
+            }else{
+                System.out.println("Corrupted file!");
+                this.sendObject(null);
+            }
+        }else{
+            this.sendMessage("EMPTY");
         }
     }
 

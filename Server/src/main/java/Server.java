@@ -46,6 +46,7 @@ public class Server {
                     String action = this.receiveMessage();
                     if (action.equals("upload")) receiveNote(false);
                     if (action.equals("listUnauthorizedNotes")) listUnauthorizedNotes();
+                    if (action.equals("listAuthorizedNotes")) listAuthorizedNotes();
                 }
             }
         } catch (IOException e) {
@@ -54,12 +55,41 @@ public class Server {
 
     }
 
-    private void listUnauthorizedNotes() throws IOException {
-        ArrayList<Data> notes = new ArrayList<>();
-        notes = dbHandler.getUnauthorizedNotes();
+    private void listAuthorizedNotes() throws IOException {
+        ArrayList<Data> notes;
+        notes = dbHandler.getNotes(true);
         this.sendObject(notes);
         String file = this.receiveMessage();
-        Data toSend = dbHandler.getNote(file);
+        String type = this.receiveMessage();
+        Data toSend;
+        byte[] fileBytes = new byte[0];
+        String directory = "files";
+        if(type.equals("Y")) {
+            toSend = dbHandler.getCipheredNote(file);
+            directory += "\\"+"enc";
+        }
+        else {
+            toSend = dbHandler.getNote(file, true);
+        }
+
+        try {
+            fileBytes = Files.readAllBytes(Paths.get(directory, toSend.getFileName()));
+            if(type.equals("Y"))
+                fileBytes = blockCipher.decrypt(fileBytes, toSend.getIv());
+        } catch (IOException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+
+        toSend.setData(fileBytes);
+        this.sendObject(toSend);
+    }
+
+    private void listUnauthorizedNotes() throws IOException {
+        ArrayList<Data> notes = new ArrayList<>();
+        notes = dbHandler.getNotes(false);
+        this.sendObject(notes);
+        String file = this.receiveMessage();
+        Data toSend = dbHandler.getNote(file, false);
 
         byte[] fileBytes = new byte[0];
         try {
@@ -85,18 +115,8 @@ public class Server {
                 try {
                     EncData res = blockCipher.encrypt((byte[]) d.getData(), d.getFileName());
                     res.setChiefId(d.getIdChief());
-                    dbHandler.insertEncInfo(res);
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
+                    dbHandler.insertEncInfo(res, d);
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException e) {
                     e.printStackTrace();
                 }
             } else {

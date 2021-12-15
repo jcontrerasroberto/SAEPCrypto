@@ -8,6 +8,7 @@ public class Data implements Serializable {
     Object data;
     String id;
     String idChief;
+    String iv;
 
     public Data() {
     }
@@ -48,5 +49,13 @@ public class Data implements Serializable {
 
     public void setIdChief(String idChief) {
         this.idChief = idChief;
+    }
+
+    public String getIv() {
+        return iv;
+    }
+
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 }
