@@ -46,6 +46,7 @@ public class Server {
                     String action = this.receiveMessage();
                     if (action.equals("upload")) receiveNote(false);
                     if (action.equals("listUnauthorizedNotes")) listUnauthorizedNotes();
+                    if (action.equals("listAuthorizedNotes")) listAuthorizedNotes();
                 }
             }
         } catch (IOException e) {
@@ -54,9 +55,15 @@ public class Server {
 
     }
 
+    private void listAuthorizedNotes() throws IOException {
+        ArrayList<Data> notes = new ArrayList<>();
+        notes = dbHandler.getNotes(true);
+        this.sendObject(notes);
+    }
+
     private void listUnauthorizedNotes() throws IOException {
         ArrayList<Data> notes = new ArrayList<>();
-        notes = dbHandler.getUnauthorizedNotes();
+        notes = dbHandler.getNotes(false);
         this.sendObject(notes);
         String file = this.receiveMessage();
         Data toSend = dbHandler.getNote(file);
@@ -86,17 +93,7 @@ public class Server {
                     EncData res = blockCipher.encrypt((byte[]) d.getData(), d.getFileName());
                     res.setChiefId(d.getIdChief());
                     dbHandler.insertEncInfo(res);
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException e) {
                     e.printStackTrace();
                 }
             } else {

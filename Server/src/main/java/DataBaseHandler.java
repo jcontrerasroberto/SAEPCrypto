@@ -43,16 +43,22 @@ public class DataBaseHandler {
         }
     }
 
-    public ArrayList<Data> getUnauthorizedNotes(){
+    public ArrayList<Data> getNotes(boolean authorized){
         try {
-            SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM notes WHERE note_chief_sign IS NULL");
+            if(authorized)
+                SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM notes WHERE note_chief_sign IS NOT NULL");
+            else
+                SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM notes WHERE note_chief_sign IS NULL");
             ResultSet rs = SAEPPrepareStat.executeQuery();
             ArrayList<Data> result = new ArrayList<>();
             while (rs.next()){
                 Data temp = new Data();
                 temp.setFileName(rs.getString("note_filename"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
-                temp.setSignatureChief(null);
+                if(authorized)
+                    temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
+                else
+                    temp.setSignatureChief(null);
                 temp.setId(rs.getString("note_professor_id"));
                 temp.setIdChief(rs.getString("note_chief_id"));
                 result.add(temp);

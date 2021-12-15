@@ -78,13 +78,38 @@ public class SAEP {
 
         }else if(this.user.getRole().equals("CHIEF")){
             System.out.println("1. List unauthorized notes");
+            System.out.println("2. List authorized notes");
             System.out.print("Option: ");
             Integer opt = in.nextInt();
             switch (opt){
                 case 1:
                     this.listUnauthorizedNotes();
                     break;
+                case 2:
+                    this.listAuthorizedNotes();
+                    break;
             }
+        }
+        else if(this.user.getRole().equals("PRINCIPAL")){
+            System.out.println("1. List authorized notes");
+            System.out.print("Option: ");
+            Integer opt = in.nextInt();
+            switch (opt){
+                case 1:
+                    this.listAuthorizedNotes();
+                    break;
+
+            }
+        }
+    }
+
+    public void listAuthorizedNotes() throws IOException {
+        Scanner in = new Scanner(System.in);
+        this.sendMessage("listAuthorizedNotes");
+        ArrayList<Data> res = (ArrayList<Data>) this.receiveObject();
+        System.out.println("Authorized lists:");
+        for (Data d : res) {
+            System.out.println(d.getFileName() + " - " + d.getId());
         }
     }
 
