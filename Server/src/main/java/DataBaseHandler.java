@@ -111,6 +111,21 @@ public class DataBaseHandler {
         }
     }
 
+    public void insertEncInfo(EncData encData){
+        System.out.println("Saving to DB");
+        try {
+            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO backup_notes (backup_filename, backup_original_filename, backup_iv, backup_chief_id) VALUES(?, ?, ?, ?);");
+            stm.setString(1, encData.getEncFilename());
+            stm.setString(2, encData.getOriginalFilename());
+            stm.setString(3, encData.getIv());
+            stm.setString(4, encData.getChiefId());
+            stm.executeUpdate();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
     private void log(String men) {
         System.out.println(men);
     }
