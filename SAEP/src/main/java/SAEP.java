@@ -119,6 +119,8 @@ public class SAEP {
             this.sendMessage(backup);
 
             Data r = (Data) this.receiveObject();
+            if(backup.equals("Y"))
+                r.setFileName(r.getFileName()+".pdf");
             if (digitalSignature.verifySignature(r, true)){
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", r.getFileName()).toString()), (byte[]) r.getData());
                 //Open the downloaded file

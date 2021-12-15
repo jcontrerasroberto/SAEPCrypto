@@ -54,7 +54,7 @@ public class DataBaseHandler {
             while (rs.next()){
                 Data temp = new Data();
                 temp.setFileName(rs.getString("note_filename"));
-                System.out.println("Firma teacher:"+rs.getString("note_professor_sign"));
+                //System.out.println("Firma teacher:"+rs.getString("note_professor_sign"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
                 if(authorized)
                     temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
@@ -96,16 +96,17 @@ public class DataBaseHandler {
     }
     public Data getCipheredNote(String filename){
         try {
-            SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM backup_notes WHERE backup_filename = ?");
+            SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM backup_notes WHERE backup_original_filename = ?");
             SAEPPrepareStat.setString(1, filename);
             ResultSet rs = SAEPPrepareStat.executeQuery();
             while (rs.next()){
                 Data temp = new Data();
-                temp.setFileName(rs.getString("note_filename"));
+                temp.setFileName(rs.getString("backup_filename"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
                 temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
-                temp.setId(rs.getString("note_professor_id"));
-                temp.setIdChief(rs.getString("note_chief_id"));
+                temp.setId(rs.getString("backup_professor_id"));
+                temp.setIdChief(rs.getString("backup_chief_id"));
+                temp.setIv(rs.getString("backup_iv"));
                 return temp;
             }
             return null;
@@ -141,15 +142,17 @@ public class DataBaseHandler {
         }
     }
 
-    public void insertEncInfo(EncData encData){
+    public void insertEncInfo(EncData encData, Data d){
         System.out.println("Saving to DB");
         try {
-            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO backup_notes (backup_filename, backup_original_filename, backup_iv, backup_chief_id, note_professor_sign, note_chief_sign) VALUES(?, ?, ?, ?, ?, ?);");
+            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO backup_notes (backup_filename, backup_original_filename, backup_iv, backup_chief_id, note_professor_sign, note_chief_sign, backup_professor_id) VALUES(?, ?, ?, ?, ?, ?, ?);");
             stm.setString(1, encData.getEncFilename());
             stm.setString(2, encData.getOriginalFilename());
             stm.setString(3, encData.getIv());
             stm.setString(4, encData.getChiefId());
-            stm.setString(5, );
+            stm.setString(5, new String(Base64.getEncoder().encode(d.getSignatureTeacher())));
+            stm.setString(6, new String(Base64.getEncoder().encode(d.getSignatureChief())));
+            stm.setString(7, d.getId());
             stm.executeUpdate();
 
         } catch (SQLException throwable) {

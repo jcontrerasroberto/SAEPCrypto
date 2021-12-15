@@ -56,23 +56,27 @@ public class Server {
     }
 
     private void listAuthorizedNotes() throws IOException {
-        ArrayList<Data> notes = new ArrayList<>();
+        ArrayList<Data> notes;
         notes = dbHandler.getNotes(true);
         this.sendObject(notes);
         String file = this.receiveMessage();
         String type = this.receiveMessage();
         Data toSend;
-        if(type.equals("Y")) {
-            Data ciphered = dbHandler.getCipheredNote(file);
-            toSend =
-        }
-        else
-            toSend = dbHandler.getNote(file, true);
-
         byte[] fileBytes = new byte[0];
+        String directory = "files";
+        if(type.equals("Y")) {
+            toSend = dbHandler.getCipheredNote(file);
+            directory += "\\"+"enc";
+        }
+        else {
+            toSend = dbHandler.getNote(file, true);
+        }
+
         try {
-            fileBytes = Files.readAllBytes(Paths.get("files", toSend.getFileName()));
-        } catch (IOException e) {
+            fileBytes = Files.readAllBytes(Paths.get(directory, toSend.getFileName()));
+            if(type.equals("Y"))
+                fileBytes = blockCipher.decrypt(fileBytes, toSend.getIv());
+        } catch (IOException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
             e.printStackTrace();
         }
 
@@ -111,7 +115,7 @@ public class Server {
                 try {
                     EncData res = blockCipher.encrypt((byte[]) d.getData(), d.getFileName());
                     res.setChiefId(d.getIdChief());
-                    dbHandler.insertEncInfo(res);
+                    dbHandler.insertEncInfo(res, d);
                 } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException e) {
                     e.printStackTrace();
                 }
