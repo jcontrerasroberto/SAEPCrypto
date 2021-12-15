@@ -75,9 +75,8 @@ public class Server {
         receiveNote(true);
     }
 
-    public void receiveNote(boolean verifyChiefSignature) throws IOException {
+    public void receiveNote(boolean bothSignatures) throws IOException {
         Data d = (Data) this.receiveObject();
-        if (digitalSignature.verifySignature(d, verifyChiefSignature)){
             if(verifyChiefSignature){
                 //UPDATE FIRMA CHIEF
                 try {
@@ -97,6 +96,7 @@ public class Server {
                 } catch (InvalidKeyException e) {
                     e.printStackTrace();
                 }
+        if (digitalSignature.verifySignature(d, verifyChiefSignature)){
             }else{
                 dbHandler.insertInDB(d);
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
