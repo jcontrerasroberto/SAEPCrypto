@@ -16,7 +16,11 @@ public class BlockCipher {
 
     static String dirActual = "files";
     static Path path = Paths.get("");
-    static String directoryName = path.toAbsolutePath()+"\\"+dirActual;
+    static String directoryName = Paths.get(String.valueOf(path.toAbsolutePath()), dirActual, "enc").toString();
+
+    public BlockCipher(){
+        super();
+    }
 
     static void saveFile(byte[] content,String ext) throws IOException {
         System.out.print("(Without extension): ");
@@ -31,12 +35,11 @@ public class BlockCipher {
         System.out.println("Data saved successfully in file "+ f.getName());
     }
 
-    static byte[] readFile(String ext) throws IOException {
-        System.out.print("(Without extension): ");
-        Scanner reader = new Scanner(System.in);
-        String name = reader.next();
+    static byte[] readFile(String path) throws IOException {
 
-        String dir = directoryName+"\\"+name+"."+ext;
+        String dir = Paths.get(path).toString();
+        System.out.println(dir);
+                //directoryName+"\\"+name+"."+ext;
 
         byte[] source = Files.readAllBytes(Path.of(dir));
         String message = new String(source);
@@ -61,24 +64,29 @@ public class BlockCipher {
         System.out.println("Creating IV");
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
-        System.out.print("Choose a file name to save the iv");
-        saveFile(Base64.getEncoder().encode(iv),"txt");
+        //System.out.print("Choose a file name to save the iv");
+        //saveFile(Base64.getEncoder().encode(iv),"txt");
         return new IvParameterSpec(iv);
     }
 
-    static byte[] encrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public EncData encrypt(byte[] data, String filename) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] cypherData;
-        System.out.print("Choose a file name to read the key");
-        SecretKey key = new SecretKeySpec(readFile("key"), "AES" );
+        //System.out.print("Choose a file name to read the key");
+        SecretKey key = new SecretKeySpec(readFile("sec/AESkey.key"), "AES" );
         IvParameterSpec iv = createIv();
-
 
         javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(javax.crypto.Cipher.ENCRYPT_MODE,key,iv);
         cypherData= cipher.doFinal(data);
 
-        ByteToFile(cypherData,"cypherDATA.aes");
-        return cypherData;
+        ByteToFile(cypherData,filename+".aes");
+
+        EncData result = new EncData();
+        result.setEncFilename(filename+".aes");
+        result.setOriginalFilename(filename);
+        result.setIv(new String(Base64.getEncoder().encode(iv.getIV())));
+
+        return result;
     }
 
     public static void decrypt(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
@@ -122,9 +130,9 @@ public class BlockCipher {
     static void ByteToFile (byte[] bytes, String name) {
 
         try {
-            String dir = directoryName+"\\"+name;
+            String dir = Paths.get(directoryName, name).toString();
             writeBytesToFile(dir, bytes);
-            System.out.println("Done");
+            System.out.println("Enc file saved");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,7 +146,7 @@ public class BlockCipher {
         fos.close();
     }
 
-    public static void main (String[]args) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    /*public static void main (String[]args) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         createKey();
         Scanner in = new Scanner(System.in);
         System.out.println("absolute path");
@@ -146,5 +154,5 @@ public class BlockCipher {
 
         byte[] aux = encrypt(loadFile(namefile));
         decrypt(aux);
-    }
+    }*/
 }

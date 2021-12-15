@@ -1,11 +1,17 @@
 import org.apache.commons.io.FileUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Server {
@@ -15,11 +21,13 @@ public class Server {
     private ObjectOutputStream oos;
     private DataBaseHandler dbHandler;
     private DigitalSignature digitalSignature;
+    private BlockCipher blockCipher;
 
     public Server(){
         log("Connecting to the DB");
         dbHandler = new DataBaseHandler();
         digitalSignature = new DigitalSignature();
+        blockCipher = new BlockCipher();
         log("Starting server...");
         ServerSocket ss = null;
 
@@ -72,7 +80,23 @@ public class Server {
         if (digitalSignature.verifySignature(d, verifyChiefSignature)){
             if(verifyChiefSignature){
                 //UPDATE FIRMA CHIEF
-                
+                try {
+                    EncData res = blockCipher.encrypt((byte[]) d.getData(), d.getFileName());
+                    res.setChiefId(d.getIdChief());
+                    dbHandler.insertEncInfo(res);
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                }
             }else{
                 dbHandler.insertInDB(d);
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
