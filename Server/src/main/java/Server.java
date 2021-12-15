@@ -67,12 +67,11 @@ public class Server {
         receiveNote(true);
     }
 
-    public void receiveNote(boolean verifyChiefSignature) throws IOException {
+    public void receiveNote(boolean bothSignatures) throws IOException {
         Data d = (Data) this.receiveObject();
-        if (digitalSignature.verifySignature(d, verifyChiefSignature)){
-            if(verifyChiefSignature){
-                //UPDATE FIRMA CHIEF
-                
+        if (digitalSignature.verifySignature(d, bothSignatures)){
+            if(bothSignatures){
+                dbHandler.updateInDB(d);
             }else{
                 dbHandler.insertInDB(d);
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());

@@ -88,21 +88,27 @@ public class DataBaseHandler {
     public void insertInDB(Data data){
         System.out.println("Saving to DB");
         try {
-            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO notes (note_filename, note_professor_sign, note_chief_sign, note_professor_id, note_chief_id) values (?, ?, ?, ?, ?);");
+            PreparedStatement stm = SAEPConn.prepareStatement("INSERT INTO notes (note_filename, note_professor_sign, note_professor_id) values (?, ?, ?);");
             stm.setString(1, data.getFileName());
             stm.setString(2, new String(Base64.getEncoder().encode(data.getSignatureTeacher())));
-            if(data.getSignatureChief()==null)
-                stm.setNull(3, Types.NULL);
-            else
-                stm.setString(3, new String(Base64.getEncoder().encode(data.getSignatureChief())));
-            stm.setString(4, data.getId());
-            stm.setString(5, data.getIdChief());
+            stm.setString(3, data.getId());
             stm.executeUpdate();
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
+    }
 
-
+    public void updateInDB(Data data){
+        System.out.println("Updating DB");
+        try {
+            PreparedStatement stm = SAEPConn.prepareStatement("UPDATE notes SET note_chief_sign = ?, note_chief_id = ? WHERE note_filename = ?;");
+            stm.setString(1, new String(Base64.getEncoder().encode(data.getSignatureChief())));
+            stm.setString(2, data.getIdChief());
+            stm.setString(3, data.getFileName());
+            stm.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     private void log(String men) {
