@@ -101,8 +101,19 @@ public class DataBaseHandler {
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
+    }
 
-
+    public void updateInDB(Data data){
+        System.out.println("Updating DB");
+        try {
+            PreparedStatement stm = SAEPConn.prepareStatement("UPDATE notes SET note_chief_sign = ?, note_chief_id = ? WHERE note_filename = ?;");
+            stm.setString(1, new String(Base64.getEncoder().encode(data.getSignatureChief())));
+            stm.setString(2, data.getIdChief());
+            stm.setString(3, data.getFileName());
+            stm.executeUpdate();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     private void log(String men) {
