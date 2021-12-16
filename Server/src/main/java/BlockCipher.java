@@ -9,6 +9,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
 
@@ -61,6 +62,7 @@ public class BlockCipher {
         System.out.println("Creating IV");
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
+        System.out.println("Created iv = " + Arrays.toString(iv));
         return new IvParameterSpec(iv);
     }
 
