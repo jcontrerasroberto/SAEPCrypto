@@ -24,13 +24,11 @@ public class Data implements Serializable {
     public void setSignatureChief(byte[] signatureChief) { this.signatureChief = signatureChief; }
 
     public String getId() { return id; }
-
     public void setId(String id) { this.id = id; }
 
     public Object getData() {
         return data;
     }
-
     public void setData(Object data) {
         this.data = data;
     }
@@ -38,7 +36,6 @@ public class Data implements Serializable {
     public String getFileName() {
         return fileName;
     }
-
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -46,7 +43,6 @@ public class Data implements Serializable {
     public String getIdChief() {
         return idChief;
     }
-
     public void setIdChief(String idChief) {
         this.idChief = idChief;
     }
@@ -54,8 +50,5 @@ public class Data implements Serializable {
     public String getIv() {
         return iv;
     }
-
-    public void setIv(String iv) {
-        this.iv = iv;
-    }
+    public void setIv(String iv) { this.iv = iv; }
 }

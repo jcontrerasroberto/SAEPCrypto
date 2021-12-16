@@ -3,11 +3,13 @@ import org.apache.commons.io.FileUtils;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -19,9 +21,9 @@ public class Server {
     private final Integer port = 9393;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    private DataBaseHandler dbHandler;
-    private DigitalSignature digitalSignature;
-    private BlockCipher blockCipher;
+    private final DataBaseHandler dbHandler;
+    private final DigitalSignature digitalSignature;
+    private final BlockCipher blockCipher;
 
     public Server() {
         log("Connecting to the DB");
@@ -29,7 +31,7 @@ public class Server {
         digitalSignature = new DigitalSignature();
         blockCipher = new BlockCipher();
         log("Starting server...");
-        ServerSocket ss = null;
+        ServerSocket ss;
 
         try {
             ss = new ServerSocket(port);
@@ -85,7 +87,7 @@ public class Server {
     }
 
     private void listUnauthorizedNotes() throws IOException {
-        ArrayList<Data> notes = new ArrayList<>();
+        ArrayList<Data> notes;
         notes = dbHandler.getNotes(false);
         this.sendObject(notes);
         String file = this.receiveMessage();
@@ -101,7 +103,6 @@ public class Server {
         toSend.setData(fileBytes);
         this.sendObject(toSend);
 
-        //Data authorizedData = (Data) this.receiveObject();
         receiveNote(true);
     }
 
@@ -110,7 +111,6 @@ public class Server {
 
         if (digitalSignature.verifySignature(d, bothSignatures)) {
             if (bothSignatures) {
-                //UPDATE FIRMA CHIEF
                 dbHandler.updateInDB(d);
                 try {
                     EncData res = blockCipher.encrypt((byte[]) d.getData(), d.getFileName());
@@ -124,7 +124,7 @@ public class Server {
                 FileUtils.writeByteArrayToFile(new File(Paths.get("files", d.getFileName()).toString()), (byte[]) d.getData());
             }
         } else {
-            log("Archivo corrupto");
+            log("Corrupted file!");
         }
 
     }
@@ -141,19 +141,18 @@ public class Server {
         }
     }
 
-    public void sendMessage(String mes) {
+/*    public void sendMessage(String mes) {
         try {
             oos.writeUTF(mes);
             oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     public String receiveMessage() {
         try {
-            String res = ois.readUTF();
-            return res;
+            return ois.readUTF();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -171,12 +170,8 @@ public class Server {
 
     public Object receiveObject() {
         try {
-            Object rec = ois.readObject();
-            return rec;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (ClassNotFoundException e) {
+            return ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }

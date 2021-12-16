@@ -1,3 +1,6 @@
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,13 +9,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Base64;
 import java.util.Scanner;
-import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 
 public class BlockCipher {
 
@@ -40,14 +38,11 @@ public class BlockCipher {
     static byte[] readFile(String path) throws IOException {
 
         String dir = Paths.get(path).toString();
-        //System.out.println(dir);
-                //directoryName+"\\"+name+"."+ext;
 
         byte[] source = Files.readAllBytes(Path.of(dir));
         String message = new String(source);
 
-        byte[] decodedBytes = Base64.getDecoder().decode(message);
-        return decodedBytes;
+        return Base64.getDecoder().decode(message);
     }
 
     static void createKey () {
@@ -62,23 +57,20 @@ public class BlockCipher {
         }
     }
 
-    static IvParameterSpec createIv() throws IOException {
+    static IvParameterSpec createIv() {
         System.out.println("Creating IV");
         byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
-        //System.out.print("Choose a file name to save the iv");
-        //saveFile(Base64.getEncoder().encode(iv),"txt");
         return new IvParameterSpec(iv);
     }
 
     public EncData encrypt(byte[] data, String filename) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] cypherData;
-        //System.out.print("Choose a file name to read the key");
         SecretKey key = new SecretKeySpec(readFile("sec/AESkey.key"), "AES" );
         IvParameterSpec iv = createIv();
 
-        javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(javax.crypto.Cipher.ENCRYPT_MODE,key,iv);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE,key,iv);
         cypherData= cipher.doFinal(data);
 
         ByteToFile(cypherData,filename+".aes");
@@ -94,44 +86,16 @@ public class BlockCipher {
     public static byte[] decrypt(byte[] data, String iv) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] originalData;
         SecretKey key = new SecretKeySpec(readFile("sec/AESkey.key"), "AES" );
-        //System.out.print("Choose a file name to read the iv");
 
         IvParameterSpec ivDec= new IvParameterSpec(Base64.getDecoder().decode(iv));
 
-        javax.crypto.Cipher cipher= javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(javax.crypto.Cipher.DECRYPT_MODE,key,ivDec);
+        Cipher cipher= Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE,key,ivDec);
         originalData= cipher.doFinal(data);
-        //ByteToFile(originalData,"OriginalData.pdf");
         return originalData;
     }
 
-    public static byte[] loadFile(String sourcePath) throws IOException
-    {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(sourcePath);
-            return readFully(inputStream);
-        }finally {
-            if (inputStream != null)
-                inputStream.close();
-        }
-    }
-
-    public static byte[] readFully(InputStream stream) throws IOException
-    {
-        byte[] buffer = new byte[8192];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        int bytesRead;
-        while ((bytesRead = stream.read(buffer)) != -1)
-        {
-            baos.write(buffer, 0, bytesRead);
-        }
-        return baos.toByteArray();
-    }
-
     static void ByteToFile (byte[] bytes, String name) {
-
         try {
             String dir = Paths.get(directoryName, name).toString();
             writeBytesToFile(dir, bytes);
@@ -140,7 +104,6 @@ public class BlockCipher {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     static void writeBytesToFile(String fileOutput, byte[] bytes) throws IOException {
@@ -149,13 +112,7 @@ public class BlockCipher {
         fos.close();
     }
 
-    /*public static void main (String[]args) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+    /*public static void main (String[]args){
         createKey();
-        Scanner in = new Scanner(System.in);
-        System.out.println("absolute path");
-        String namefile = in.nextLine();
-
-        byte[] aux = encrypt(loadFile(namefile));
-        decrypt(aux);
     }*/
 }

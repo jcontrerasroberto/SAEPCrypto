@@ -54,7 +54,6 @@ public class DataBaseHandler {
             while (rs.next()){
                 Data temp = new Data();
                 temp.setFileName(rs.getString("note_filename"));
-                //System.out.println("Firma teacher:"+rs.getString("note_professor_sign"));
                 temp.setSignatureTeacher(Base64.getDecoder().decode(rs.getString("note_professor_sign")));
                 if(authorized)
                     temp.setSignatureChief(Base64.getDecoder().decode(rs.getString("note_chief_sign")));
@@ -94,6 +93,7 @@ public class DataBaseHandler {
             return null;
         }
     }
+
     public Data getCipheredNote(String filename){
         try {
             SAEPPrepareStat = SAEPConn.prepareStatement("SELECT * FROM backup_notes WHERE backup_original_filename = ?");

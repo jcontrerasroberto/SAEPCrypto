@@ -12,7 +12,6 @@ public class EncData {
     public String getEncFilename() {
         return encFilename;
     }
-
     public void setEncFilename(String encFilename) {
         this.encFilename = encFilename;
     }
@@ -20,7 +19,6 @@ public class EncData {
     public String getOriginalFilename() {
         return originalFilename;
     }
-
     public void setOriginalFilename(String originalFilename) {
         this.originalFilename = originalFilename;
     }
@@ -28,7 +26,6 @@ public class EncData {
     public String getIv() {
         return iv;
     }
-
     public void setIv(String iv) {
         this.iv = iv;
     }
@@ -36,7 +33,6 @@ public class EncData {
     public String getChiefId() {
         return chiefId;
     }
-
     public void setChiefId(String chiefId) {
         this.chiefId = chiefId;
     }

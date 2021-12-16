@@ -1,8 +1,10 @@
 import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
-import java.io.*;
-import java.net.ServerSocket;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,9 +19,9 @@ public class SAEP {
     private User user;
     private final int port = 9393;
     private final String dir = "localhost";
+    private final DigitalSignature digitalSignature;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    private DigitalSignature digitalSignature;
 
     public SAEP() throws IOException {
         digitalSignature = new DigitalSignature();
@@ -67,16 +69,10 @@ public class SAEP {
     public void menu() throws IOException {
         Scanner in = new Scanner(System.in);
         if(this.user.getRole().equals("PROFESSOR")){
-            System.out.println("1. Upload grades");
-            System.out.print("Option: ");
-            Integer opt = in.nextInt();
-            switch (opt){
-                case 1:
-                    this.uploadNotes();
-                    break;
-            }
-
-        }else if(this.user.getRole().equals("CHIEF")){
+            System.out.println("Please approve all your students :c");
+            this.uploadNotes();
+        }
+        else if(this.user.getRole().equals("CHIEF")){
             System.out.println("1. List unauthorized notes");
             System.out.println("2. List authorized notes");
             System.out.print("Option: ");
@@ -91,15 +87,8 @@ public class SAEP {
             }
         }
         else if(this.user.getRole().equals("PRINCIPAL")){
-            System.out.println("1. List authorized notes");
-            System.out.print("Option: ");
-            Integer opt = in.nextInt();
-            switch (opt){
-                case 1:
-                    this.listAuthorizedNotes();
-                    break;
-
-            }
+            System.out.println("Listing notes");
+            this.listAuthorizedNotes();
         }
     }
 
@@ -170,6 +159,7 @@ public class SAEP {
                     System.out.println("Signing file");
                     r.setIdChief(user.getId());
                     r.setSignatureChief(digitalSignature.sign(r));
+                    System.out.println("File signed successfully by "+user.getId()+", digital signature: "+ new String(Base64.getEncoder().encode(r.getSignatureChief())));
                     this.sendObject(r);
                 }else{
                     this.sendObject(null);
@@ -189,7 +179,7 @@ public class SAEP {
         Scanner in = new Scanner(System.in);
         String filepath;
         System.out.println("UPLOAD AND SIGN GRADES LIST");
-        System.out.print("File path (name should be GROUP_SUBJECT, I.e. 3CM9_MATH): ");
+        System.out.print("File path (name should be GROUP_SUBJECT, Example: 3CM9_MATH) >> ");
         filepath = in.nextLine();
         byte[] fileBytes = new byte[0];
         try {
@@ -219,7 +209,7 @@ public class SAEP {
         }
     }
 
-    public String receiveMessage(){
+/*    public String receiveMessage(){
         try {
             String res = ois.readUTF();
             return res;
@@ -227,7 +217,7 @@ public class SAEP {
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 
     public void sendObject(Object toSend){
         try {
@@ -255,6 +245,7 @@ public class SAEP {
         try {
             byte[] hash = MessageDigest.getInstance("SHA-256").digest(password.getBytes());
             String digest = Base64.getEncoder().encodeToString(hash);
+            System.out.println("digest password = " + digest);
             return digest;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

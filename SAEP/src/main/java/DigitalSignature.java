@@ -8,10 +8,7 @@ import java.security.Signature;
 import java.security.cert.Certificate;
 
 public class DigitalSignature {
-    //ATRIBUTOS
-    //no hay, no existen :c
 
-    //METODOS COMO FIRMAR, VERIFICAR FIRMA
     public byte[] sign(Data data){
         byte[] fileBytes = (byte[]) data.getData();
         try {
